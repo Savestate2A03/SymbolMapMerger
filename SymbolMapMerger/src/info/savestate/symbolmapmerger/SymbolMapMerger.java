@@ -7,12 +7,12 @@ package info.savestate.symbolmapmerger;
 
 /**
  *
- * @author Joseph El-Khouri
+ * @author Joseph El-Khouri 
  */
 public class SymbolMapMerger {
 
-    public SymbolMapMerger() {
-        
+    public SymbolMapMerger() { 
+         
     }
     
 }

@@ -6,7 +6,7 @@
 package info.savestate.symbolmapmerger;
 
 /**
- *
+ * 
  * @author Joseph
  */
 public class SymbolMap {

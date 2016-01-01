@@ -35,7 +35,7 @@ public class Symbol {
     public static String nameJoin(String name, String author) {
         return author + "_" + name;
     }
-    
+      
     private String leadingZeros(String s) {
         String zeros = "";
         int amt = 8 - s.length();
