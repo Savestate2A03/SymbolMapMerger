@@ -20,12 +20,20 @@ public class Symbol {
         this.address = address;
         this.size = size;
         String[] name_author = Symbol.nameSplit(fullname);
-        author = name_author[0];
-        name = name_author[1];
+        if (name_author.length == 1) {
+            name = name_author[0];
+            author = "";
+        } else {
+            author = name_author[0];
+            name = name_author[1];
+        }
     }
     
     public Symbol(int address, int size, String name, String author) {
-        
+        this.address = address;
+        this.size = size;
+        this.name = name;
+        this.author = author;
     }
     
     public static String[] nameSplit(String fullname) {
@@ -33,7 +41,18 @@ public class Symbol {
     }
     
     public static String nameJoin(String name, String author) {
+        if (author.isEmpty())
+            return name;
         return author + "_" + name;
+    }
+    
+    public static Symbol symbolBuilder(String line) {
+        String[] parts = line.split(" ", 5);
+        int address = Integer.parseInt(parts[0], 16);
+        int size = Integer.parseInt(parts[1], 16);
+        String fullname = parts[4];
+        Symbol s = new Symbol(address, size, fullname);
+        return s;
     }
       
     private String leadingZeros(String s) {
