@@ -22,14 +22,16 @@ public class SymbolMap {
     private ArrayList<Symbol> symbols;
     
     public SymbolMap() {
-        
+        System.out.println("Generic SymbolMap created...");
     }
     
     public SymbolMap(ArrayList<Symbol> symbols) {
+        System.out.println("SymbolMap from ArrayList<Symbol> created...");
         this.symbols = symbols;
     }
     
     public static SymbolMap symbolMapBuilder(String filepath) {
+        System.out.println("Using static map builder... [" + filepath + "]");
         SymbolMap sm = new SymbolMap();
         sm.symbols = new ArrayList<>();
         try {
@@ -37,11 +39,17 @@ public class SymbolMap {
             InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
             BufferedReader br = new BufferedReader(isr);
             String line;
+            System.out.println("Reading in SymbolMap...");
+            int lines = 0;
             while ((line = br.readLine()) != null) {
                 if (line.equals(".text"))
                         continue;
                 sm.symbols.add(Symbol.symbolBuilder(line));
+                lines++;
+                if (lines % 4 == 0)
+                    System.out.print("\rLines imported: " + lines);
             }
+            System.out.println("\rLines imported: " + lines);
             return sm;
         } catch (IOException ex) {
             return null;
