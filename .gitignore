@@ -45,3 +45,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+#netbeans junk (forgot to init the git with netbeans)
+SymbolMapMerger/build
+SymbolMapMerger/dist
+SymbolMapMerger/nbproject/private
