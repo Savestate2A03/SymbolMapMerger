@@ -21,6 +21,14 @@ public class SymbolMap {
     
     private ArrayList<Symbol> symbols;
     
+    public SymbolMap() {
+        
+    }
+    
+    public SymbolMap(ArrayList<Symbol> symbols) {
+        this.symbols = symbols;
+    }
+    
     public static SymbolMap symbolMapBuilder(String filepath) {
         SymbolMap sm = new SymbolMap();
         sm.symbols = new ArrayList<>();
@@ -38,6 +46,14 @@ public class SymbolMap {
         } catch (IOException ex) {
             return null;
         }
+    }
+    
+    public ArrayList<Symbol> getSymbols() {
+        return symbols;
+    }
+    
+    public void setSymbols(ArrayList<Symbol> symbols) {
+        this.symbols = symbols;
     }
     
     public void printSymbolMap() {

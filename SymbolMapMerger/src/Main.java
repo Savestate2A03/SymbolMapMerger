@@ -13,8 +13,10 @@ import info.savestate.symbolmapmerger.*;
 public class Main {
     
     public static void main(String[] args) {
-        SymbolMapMerger smm = new SymbolMapMerger();
-        SymbolMap.symbolMapBuilder(args[0]).printSymbolMap();
+        SymbolMap sm1 = SymbolMap.symbolMapBuilder(args[0]);
+        SymbolMap sm2 = SymbolMap.symbolMapBuilder(args[1]);
+        SymbolMapMerger smm = new SymbolMapMerger(sm1, sm2);
+        smm.stripArtifacts();
     } 
     
 }
