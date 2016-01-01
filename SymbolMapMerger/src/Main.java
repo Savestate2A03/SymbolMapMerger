@@ -14,6 +14,7 @@ public class Main {
     
     public static void main(String[] args) {
         SymbolMapMerger smm = new SymbolMapMerger();
+        SymbolMap.symbolMapBuilder(args[0]).printSymbolMap();
     } 
     
 }

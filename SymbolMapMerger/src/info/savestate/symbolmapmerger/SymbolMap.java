@@ -30,11 +30,19 @@ public class SymbolMap {
             BufferedReader br = new BufferedReader(isr);
             String line;
             while ((line = br.readLine()) != null) {
+                if (line.equals(".text"))
+                        continue;
                 sm.symbols.add(Symbol.symbolBuilder(line));
             }
             return sm;
         } catch (IOException ex) {
             return null;
+        }
+    }
+    
+    public void printSymbolMap() {
+        for (Symbol s : symbols) {
+            System.out.println(s);
         }
     }
     
