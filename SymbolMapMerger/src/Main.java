@@ -25,7 +25,7 @@ public class Main {
         SymbolMapMerger smm = new SymbolMapMerger(sm1, sm2);
         smm.stripArtifacts();
         smm.merge();
-        smm.manualStrip();
+        smm.conflictResolution();
     } 
     
 }
