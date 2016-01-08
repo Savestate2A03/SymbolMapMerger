@@ -81,7 +81,10 @@ public class SymbolMapMerger {
                     conflicts++;
                     mergedSymbolMap.add(null);
                 } else if (s1.name.startsWith("zz")) {
-                    s2.name = prepend + s2.name;
+                    if (!prepend.isEmpty()) {
+                        if (!s2.name.startsWith(prepend))
+                            s2.name = prepend + s2.name;
+                    }
                     mergedSymbolMap.add(s2);
                 } else if (s2.name.startsWith("zz")) {
                     mergedSymbolMap.add(s1);
