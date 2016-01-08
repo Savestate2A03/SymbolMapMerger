@@ -20,12 +20,17 @@ public class Main {
                          + "\n"
                          + " | community-symbol-map.426763/                 |");
         System.out.println(" ================================================");
+        if (args.length != 3) {
+            System.out.println("Usage: SymbolMapMerger.jar [CSM.map] [YOUR_MAP.map] [OUTPUT.map]");
+            return;
+        }
         SymbolMap sm1 = SymbolMap.symbolMapBuilder(args[0]);
         SymbolMap sm2 = SymbolMap.symbolMapBuilder(args[1]);
         SymbolMapMerger smm = new SymbolMapMerger(sm1, sm2);
         smm.stripArtifacts();
         smm.merge();
         smm.conflictResolution();
+        smm.write(args[2]);
     } 
     
 }

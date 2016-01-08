@@ -5,6 +5,8 @@
  */
 package info.savestate.symbolmapmerger;
 
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -61,10 +63,15 @@ public class SymbolMapMerger {
     }
     
     public void merge() {
+        System.out.println("Prepend your own functions with a string?");
+        System.out.println("(If you don't want to, press enter with nothing typed in)");
+        System.out.print(" --> ");
+        Scanner sc = new Scanner(System.in);
+        String prepend = sc.nextLine();
         System.out.println("Merging SymbolMaps...");
         ArrayList<Symbol> sm1 = new ArrayList(m1.getSymbols());
         ArrayList<Symbol> sm2 = new ArrayList(m2.getSymbols());
-        ArrayList<Symbol> merged = new ArrayList<>();
+        ArrayList<Symbol> mergedSymbolMap = new ArrayList<>();
         int conflicts = 0;
         for (int i=0; i<sm1.size(); i++) {
             Symbol s1 = sm1.get(i);
@@ -72,26 +79,27 @@ public class SymbolMapMerger {
             if (!s1.name.equals(s2.name)) {
                 if (!(s1.name.startsWith("zz") | s2.name.startsWith("zz"))) {
                     conflicts++;
-                    merged.add(null);
+                    mergedSymbolMap.add(null);
                 } else if (s1.name.startsWith("zz")) {
-                    merged.add(s2);
+                    s2.name = prepend + s2.name;
+                    mergedSymbolMap.add(s2);
                 } else if (s2.name.startsWith("zz")) {
-                    merged.add(s1);
+                    mergedSymbolMap.add(s1);
                 }
             } else {
-                merged.add(s1);
+                mergedSymbolMap.add(s1);
             }
             if (i % 4 == 0)
                System.out.print("\rSize: " + i + "/" + sm1.size() +
-                                " | Merged: " + merged.size() +
+                                " | Merged: " + mergedSymbolMap.size() +
                                 " | Conflicts: " + conflicts);
         }
         System.out.print("\rSize: " + sm1.size() + "/" + sm1.size() +
-                         " | Merged: " + (merged.size()-conflicts) +
+                         " | Merged: " + (mergedSymbolMap.size()-conflicts) +
                          " | Conflicts: " + conflicts);
         System.out.println();
         // conflicting symbols are null
-        this.merged = new SymbolMap(merged);
+        merged = new SymbolMap(mergedSymbolMap);
     }
     
     public void conflictResolution() {
@@ -295,6 +303,29 @@ public class SymbolMapMerger {
             if (s == null) size++;
         }
         return size;
+    }
+
+    public void write(String name) {
+        StringBuilder output = new StringBuilder();
+        output.append(".text\n");
+        for (int i=0; i<merged.getSymbols().size(); i++) {
+            Symbol s = merged.getSymbols().get(i);
+            output.append(Integer.toUnsignedString(s.address, 16));
+            output.append(' ');
+            output.append(s.leadingZeros(Integer.toUnsignedString(s.size, 16)));
+            output.append(' ');
+            output.append(Integer.toUnsignedString(s.address, 16));
+            output.append(" 0 ").append(s.name);
+            output.append("\n");
+        }
+        byte[] bytes = output.toString().getBytes(StandardCharsets.UTF_8);
+        try {
+            try (FileOutputStream stream = new FileOutputStream(name)) {
+                stream.write(bytes);
+            }
+        } catch (Exception e) {
+            System.out.println("Error writing symbol map!");
+        }
     }
     
 }

@@ -30,7 +30,7 @@ public class Symbol {
         return s;
     }
       
-    private String leadingZeros(String s) {
+    public String leadingZeros(String s) {
         String zeros = "";
         int amt = 8 - s.length();
         for (int i=0; i<amt; i++) 
