@@ -37,30 +37,27 @@ public class SymbolMapMerger {
         int count = 0;
         for (Symbol csmSymbol : csm.getSymbols()) {
             boolean found = false;
-            boolean csmNamedFunction = false;
+            boolean csmOnlySymbol = true;
             int indexCSM = 0;
             int indexYourMap = 0;
             for (Symbol yourSymbol : yourMap.getSymbols()) {
                 if (csmSymbol.address == yourSymbol.address) {
                     found = true;
-                    indexCSM = oldCSM.indexOf(csmSymbol);
-                    indexYourMap = oldYourMap.indexOf(yourSymbol);
-                    break;
-                }
-                if ((!csmSymbol.name.startsWith("zz")) && (yourSymbol.name.startsWith("zz"))) {
-                    csmNamedFunction = true;
+                    csmOnlySymbol = false;
                     indexCSM = oldCSM.indexOf(csmSymbol);
                     indexYourMap = oldYourMap.indexOf(yourSymbol);
                     break;
                 }
             }
+            if (csmSymbol.name.startsWith("zz") && csmOnlySymbol)
+                csmOnlySymbol = false;
             if (found) {
                 newCSM.add(oldCSM.remove(indexCSM));
                 newYourMap.add(oldYourMap.remove(indexYourMap));
             }
-            if (csmNamedFunction) {
-                newCSM.add(oldCSM.get(indexCSM));
-                newYourMap.add(oldCSM.remove(indexCSM));
+            if (csmOnlySymbol) {
+                newYourMap.add(oldCSM.get(indexCSM).duplicate());
+                newCSM.add(oldCSM.remove(indexCSM));
                 newYourMap.remove(indexYourMap);
             }
             count++;

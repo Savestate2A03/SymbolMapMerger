@@ -38,6 +38,10 @@ public class Symbol {
         return zeros + s;
     }
     
+    public Symbol duplicate() {
+        return new Symbol(address, size, name);
+    }
+    
     @Override
     public String toString() {
         String hex_ADDR = leadingZeros(Integer.toHexString(address));
