@@ -38,21 +38,18 @@ public class SymbolMapMerger {
         for (Symbol csmSymbol : csm.getSymbols()) {
             boolean found = false;
             boolean csmOnlySymbol = true;
-            int indexCSM = 0;
+            int indexCSM = oldCSM.indexOf(csmSymbol);
             int indexYourMap = 0;
             for (Symbol yourSymbol : yourMap.getSymbols()) {
                 if (csmSymbol.address == yourSymbol.address) {
                     found = true;
                     csmOnlySymbol = false;
-                    indexCSM = oldCSM.indexOf(csmSymbol);
                     indexYourMap = oldYourMap.indexOf(yourSymbol);
                     break;
                 }
             }
-            if (csmSymbol.name.startsWith("zz") && csmOnlySymbol) {
+            if (csmSymbol.name.startsWith("zz") && csmOnlySymbol)
                 csmOnlySymbol = false;
-                indexCSM = oldCSM.indexOf(csmSymbol);
-            }
             if (found) {
                 newCSM.add(oldCSM.remove(indexCSM));
                 newYourMap.add(oldYourMap.remove(indexYourMap));
