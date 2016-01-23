@@ -49,16 +49,16 @@ public class SymbolMapMerger {
                     break;
                 }
             }
-            if (csmSymbol.name.startsWith("zz") && csmOnlySymbol)
+            if (csmSymbol.name.startsWith("zz") && csmOnlySymbol) {
                 csmOnlySymbol = false;
+                indexCSM = oldCSM.indexOf(csmSymbol);
+            }
             if (found) {
                 newCSM.add(oldCSM.remove(indexCSM));
                 newYourMap.add(oldYourMap.remove(indexYourMap));
-            }
-            if (csmOnlySymbol) {
+            } else if (csmOnlySymbol) {
                 newYourMap.add(oldCSM.get(indexCSM).duplicate());
                 newCSM.add(oldCSM.remove(indexCSM));
-                newYourMap.remove(indexYourMap);
             }
             count++;
             if ((count % 471) == 0) {
