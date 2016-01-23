@@ -16,50 +16,64 @@ import java.util.Scanner;
  */
 public class SymbolMapMerger {
 
-    SymbolMap m1;
-    SymbolMap m2;
+    SymbolMap csm;
+    SymbolMap yourMap;
     SymbolMap merged;
     
-    public SymbolMapMerger(SymbolMap m1, SymbolMap m2) { 
-        this.m1 = m1;
-        this.m2 = m2;
+    public SymbolMapMerger(SymbolMap csm, SymbolMap yourMap) { 
+        this.csm = csm;
+        this.yourMap = yourMap;
         merged = null;
     }
     
     public void stripArtifacts() {
         System.out.println("Stripping artifact functions...");
         System.out.println("(Functions not shared by either map)");
-        ArrayList<Symbol> new1 = new ArrayList<>();
-        ArrayList<Symbol> new2 = new ArrayList<>();
-        ArrayList<Symbol> old1 = new ArrayList(m1.getSymbols());
-        ArrayList<Symbol> old2 = new ArrayList(m2.getSymbols());
+        System.out.println("... except for NAMED functions present in the CSM");
+        ArrayList<Symbol> newCSM = new ArrayList<>();
+        ArrayList<Symbol> newYourMap = new ArrayList<>();
+        ArrayList<Symbol> oldCSM = new ArrayList(csm.getSymbols());
+        ArrayList<Symbol> oldYourMap = new ArrayList(yourMap.getSymbols());
         int count = 0;
-        for (Symbol s1 : m1.getSymbols()) {
+        for (Symbol csmSymbol : csm.getSymbols()) {
             boolean found = false;
-            int index1 = 0;
-            int index2 = 0;
-            for (Symbol s2 : m2.getSymbols()) {
-                if (s1.address == s2.address) {
+            boolean csmNamedFunction = false;
+            int indexCSM = 0;
+            int indexYourMap = 0;
+            for (Symbol yourSymbol : yourMap.getSymbols()) {
+                if (csmSymbol.address == yourSymbol.address) {
                     found = true;
-                    index1 = old1.indexOf(s1);
-                    index2 = old2.indexOf(s2);
+                    indexCSM = oldCSM.indexOf(csmSymbol);
+                    indexYourMap = oldYourMap.indexOf(yourSymbol);
+                    break;
+                }
+                if ((!csmSymbol.name.startsWith("zz")) && (yourSymbol.name.startsWith("zz"))) {
+                    csmNamedFunction = true;
+                    indexCSM = oldCSM.indexOf(csmSymbol);
+                    indexYourMap = oldYourMap.indexOf(yourSymbol);
+                    break;
                 }
             }
             if (found) {
-                new1.add(old1.remove(index1));
-                new2.add(old2.remove(index2));
+                newCSM.add(oldCSM.remove(indexCSM));
+                newYourMap.add(oldYourMap.remove(indexYourMap));
+            }
+            if (csmNamedFunction) {
+                newCSM.add(oldCSM.get(indexCSM));
+                newYourMap.add(oldCSM.remove(indexCSM));
+                newYourMap.remove(indexYourMap);
             }
             count++;
             if ((count % 471) == 0) {
-                System.out.print("\rProgress... " + count + "/" + m1.getSymbols().size());
+                System.out.print("\rProgress... " + count + "/" + csm.getSymbols().size());
             }
         }
-        System.out.print("Progress... " + count + "/" + m1.getSymbols().size());
+        System.out.print("Progress... " + count + "/" + csm.getSymbols().size());
         System.out.println();
-        m1 = new SymbolMap(new1);
-        m2 = new SymbolMap(new2);
-        System.out.println("Artifact functions in map #1: " + old1.size());
-        System.out.println("Artifact functions in map #2: " + old2.size());
+        csm = new SymbolMap(newCSM);
+        yourMap = new SymbolMap(newYourMap);
+        System.out.println("Artifact functions in map #1: " + oldCSM.size());
+        System.out.println("Artifact functions in map #2: " + oldYourMap.size());
     }
     
     public void merge() {
@@ -69,8 +83,8 @@ public class SymbolMapMerger {
         Scanner sc = new Scanner(System.in);
         String prepend = sc.nextLine();
         System.out.println("Merging SymbolMaps...");
-        ArrayList<Symbol> sm1 = new ArrayList(m1.getSymbols());
-        ArrayList<Symbol> sm2 = new ArrayList(m2.getSymbols());
+        ArrayList<Symbol> sm1 = new ArrayList(csm.getSymbols());
+        ArrayList<Symbol> sm2 = new ArrayList(yourMap.getSymbols());
         ArrayList<Symbol> mergedSymbolMap = new ArrayList<>();
         int conflicts = 0;
         for (int i=0; i<sm1.size(); i++) {
@@ -142,8 +156,8 @@ public class SymbolMapMerger {
             if (s != null) continue;
             System.out.println("Conflicts left: " + getNumConflicts());
             Scanner sc = new Scanner(System.in);
-            Symbol s1 = m1.getSymbols().get(i);
-            Symbol s2 = m2.getSymbols().get(i);
+            Symbol s1 = csm.getSymbols().get(i);
+            Symbol s2 = yourMap.getSymbols().get(i);
             String hex = Integer.toUnsignedString(s1.address, 16);
             System.out.println("0x" + hex + ": ");
             System.out.println("  [1] \"" + s1.name + "\"");
@@ -198,8 +212,8 @@ public class SymbolMapMerger {
         for (int i=0; i<merged.getSymbols().size(); i++) {
             Symbol s = merged.getSymbols().get(i);
             if (s != null) continue;
-            Symbol s1 = m1.getSymbols().get(i);
-            Symbol s2 = m2.getSymbols().get(i);
+            Symbol s1 = csm.getSymbols().get(i);
+            Symbol s2 = yourMap.getSymbols().get(i);
             try {
                 if (s1.name.matches(string) && !s2.name.matches(string)) {
                     merged.getSymbols().set(i, s1); 
@@ -234,8 +248,8 @@ public class SymbolMapMerger {
         for (int i=0; i<merged.getSymbols().size(); i++) {
             Symbol s = merged.getSymbols().get(i);
             if (s != null) continue;
-            Symbol s1 = m1.getSymbols().get(i);
-            Symbol s2 = m2.getSymbols().get(i);
+            Symbol s1 = csm.getSymbols().get(i);
+            Symbol s2 = yourMap.getSymbols().get(i);
             if (s1.name.contains(string) && !s2.name.contains(string)) {
                 merged.getSymbols().set(i, s1); 
                 matches++;
@@ -267,8 +281,8 @@ public class SymbolMapMerger {
         for (int i=0; i<merged.getSymbols().size(); i++) {
             Symbol s = merged.getSymbols().get(i);
             if (s != null) continue;
-            Symbol s1 = m1.getSymbols().get(i);
-            Symbol s2 = m2.getSymbols().get(i);
+            Symbol s1 = csm.getSymbols().get(i);
+            Symbol s2 = yourMap.getSymbols().get(i);
             if (s1.name.startsWith(string) && !s2.name.startsWith(string)) {
                 merged.getSymbols().set(i, s1); 
                 matches++;
@@ -289,8 +303,8 @@ public class SymbolMapMerger {
         for (int i=0; i<merged.getSymbols().size(); i++) {
             Symbol s = merged.getSymbols().get(i);
             if (s != null) continue;
-            Symbol s1 = m1.getSymbols().get(i);
-            Symbol s2 = m2.getSymbols().get(i);
+            Symbol s1 = csm.getSymbols().get(i);
+            Symbol s2 = yourMap.getSymbols().get(i);
             String hex = Integer.toUnsignedString(s1.address, 16);
             System.out.print("0x" + hex + ": [");
             System.out.print(s1.name);
