@@ -8,6 +8,8 @@ package info.savestate.symbolmapmerger;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -29,7 +31,7 @@ public class SymbolMapMerger {
     public void stripArtifacts() {
         System.out.println("Stripping artifact functions...");
         System.out.println("(Functions not shared by either map)");
-        System.out.println("... except for NAMED functions present in the CSM");
+        System.out.println("... except for NAMED functions present in the CSM/YourMap");
         ArrayList<Symbol> newCSM = new ArrayList<>();
         ArrayList<Symbol> newYourMap = new ArrayList<>();
         ArrayList<Symbol> oldCSM = new ArrayList(csm.getSymbols());
@@ -46,7 +48,7 @@ public class SymbolMapMerger {
                     csmOnlySymbol = false;
                     indexYourMap = oldYourMap.indexOf(yourSymbol);
                     break;
-                }
+                } 
             }
             if (csmSymbol.name.startsWith("zz") && csmOnlySymbol)
                 csmOnlySymbol = false;
@@ -62,8 +64,24 @@ public class SymbolMapMerger {
                 System.out.print("\rProgress... " + count + "/" + csm.getSymbols().size());
             }
         }
-        System.out.print("Progress... " + count + "/" + csm.getSymbols().size());
-        System.out.println();
+        System.out.println("\rProgress... " + count + "/" + csm.getSymbols().size());
+        System.out.println("Now checking named symbols from your map...");
+        count = 0;
+        for (Symbol leftover : oldYourMap) {
+            if (!leftover.name.startsWith("zz")) {
+                // this way the name appender will
+                // append your symbol and not 
+                // keem them as they are.
+                Symbol zzDSymbol = leftover.duplicate();
+                zzDSymbol.name = "zz_" + zzDSymbol.name;
+                newCSM.add(zzDSymbol);
+                newYourMap.add(leftover);
+            }
+            if ((count % 5) == 0)
+                System.out.print("\rProgress... " + count + "/" + oldYourMap.size());
+            count++;
+        }
+        System.out.println("\rProgress... " + count + "/" + oldYourMap.size());
         csm = new SymbolMap(newCSM);
         yourMap = new SymbolMap(newYourMap);
         System.out.println("Artifact functions in map #1: " + oldCSM.size());
@@ -141,6 +159,8 @@ public class SymbolMapMerger {
             }
         }
         System.out.println("Conflict resolution finished!");
+        System.out.println("Sorting merged symbols...");
+        Collections.sort(merged.getSymbols());
     }
     
     private void conflictManual() {

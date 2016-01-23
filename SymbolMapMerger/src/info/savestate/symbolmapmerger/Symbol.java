@@ -9,7 +9,7 @@ package info.savestate.symbolmapmerger;
  *
  * @author Joseph
  */
-public class Symbol {
+public class Symbol implements Comparable<Symbol> {
     
     public int address;
     public int size;
@@ -52,6 +52,11 @@ public class Symbol {
         sb.append(hex_ADDR).append(" 0 ");
         sb.append(name);
         return sb.toString();
+    }
+
+    @Override
+    public int compareTo(Symbol o) {
+        return (Integer.compareUnsigned(this.address, o.address));
     }
     
 }
